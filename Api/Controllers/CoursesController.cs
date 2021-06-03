@@ -4,6 +4,7 @@ using Api.Data;
 using Api.Entities;
 using Api.Interfaces;
 using Api.Models;
+using App.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,11 +14,11 @@ namespace Api.Controllers
     [Route("api/courses")]
     public class CoursesController : ControllerBase
     {
-        private readonly ICourseRepository _repo;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public CoursesController(ICourseRepository repo)
+        public CoursesController(IUnitOfWork unitOfWork)
         {
-            _repo = repo;
+            _unitOfWork = unitOfWork;
         }
 
         // Det skall gå att skapa nya kurser som lagras i en databas(SQLite)
@@ -26,9 +27,9 @@ namespace Api.Controllers
         {
             try
             {
-                await _repo.AddAsync(course);
+                await _unitOfWork.CourseRepository.AddAsync(course);
 
-                if(await _repo.SaveAllChanges()) return StatusCode(201);
+                if(await _unitOfWork.Complete()) return StatusCode(201);
 
                 return StatusCode(500, "something went wrong");
             }
@@ -42,8 +43,8 @@ namespace Api.Controllers
         [HttpGet()]
         public async Task<ActionResult> GetCourses()
         {
-            var result  = await _repo.GetCoursesAsync();
-            return Ok(result);
+            var courses  = await _unitOfWork.CourseRepository.GetCoursesAsync();
+            return Ok(courses);
         }
 
         // Det skall gå att söka efter en kurs på kursens kursnummer
@@ -52,7 +53,7 @@ namespace Api.Controllers
         {
             try
             {
-                var course = await _repo.GetCourseByCourseNumberAync(courseNumber);
+                var course = await _unitOfWork.CourseRepository.GetCourseByCourseNumberAync(courseNumber);
 
                 if (course == null) return NotFound();
 
@@ -68,7 +69,7 @@ namespace Api.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateCourse(int id, Course courseModel)
         {
-            var course = await _repo.GetCourseByIdAync(id);
+            var course = await _unitOfWork.CourseRepository.GetCourseByIdAync(id);
             
             course.Title = courseModel.Title;
             course.Description = courseModel.Description;
@@ -76,8 +77,8 @@ namespace Api.Controllers
             course.Difficulty = courseModel.Difficulty;
             course.Status = courseModel.Status;
 
-            _repo.Update(course);
-            var result = await _repo.SaveAllChanges();
+            _unitOfWork.CourseRepository.Update(course);
+            var result = await _unitOfWork.Complete();
             return NoContent();
         }
 
@@ -85,12 +86,19 @@ namespace Api.Controllers
         [HttpPut("{id}/{status}")]
         public async Task<ActionResult> SetStatus(int id, string status)
         {
-            var course = await _repo.GetCourseByIdAync(id);
+            var course = await _unitOfWork.CourseRepository.GetCourseByIdAync(id);
             course.Status = status;
         
-            _repo.Update(course);
-            var result = await _repo.SaveAllChanges();
+            _unitOfWork.CourseRepository.Update(course);
+            var result = await _unitOfWork.Complete();
             return NoContent();
         }
+
+        // När en deltagare anmäler sig/köper en kurs måste vi kunna spåra vilken/vilka kurser som deltagaren har anmält sig till eller köpt
+        // Ett eller flera repo???
+        //public async Task<ActionResult> SignUp(int id)
+        //{
+        //    var student = await _repo.GetStudent
+        //}
     }
 }

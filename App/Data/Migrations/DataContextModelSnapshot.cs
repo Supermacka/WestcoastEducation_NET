@@ -21,8 +21,8 @@ namespace App.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("CourseNumber")
-                        .HasColumnType("INTEGER");
+                    b.Property<string>("CourseNumber")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");

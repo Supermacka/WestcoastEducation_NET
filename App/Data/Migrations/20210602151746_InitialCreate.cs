@@ -12,7 +12,7 @@ namespace App.Data.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    CourseNumber = table.Column<int>(type: "INTEGER", nullable: false),
+                    CourseNumber = table.Column<string>(type: "TEXT", nullable: true),
                     Title = table.Column<string>(type: "TEXT", nullable: true),
                     Description = table.Column<string>(type: "TEXT", nullable: true),
                     Length = table.Column<int>(type: "INTEGER", nullable: false),

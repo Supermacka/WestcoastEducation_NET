@@ -7,8 +7,9 @@ namespace Api.Interfaces
     public interface IStudentRepository
     {
         Task AddAsync(Student student);
-        void UpdateAsync(Student student);
+        void Update(Student student);
         Task<IEnumerable<Student>> GetStudentsAsync();
-        Task<Student> GetStudentByEmail(string email);
+        Task<Student> GetStudentByEmailAsync(string email);
+        Task<Student> GetStudentById(int id);
     }
 }

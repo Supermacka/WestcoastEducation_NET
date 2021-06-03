@@ -1,8 +1,6 @@
-using System.Collections.Generic;
-
-namespace Api.Entities
+namespace App.ViewModels
 {
-    public class Course
+    public class EditCourseViewModel
     {
         public int Id { get; set; }
         public string CourseNumber {get; set; }
@@ -11,6 +9,5 @@ namespace Api.Entities
         public int Length { get; set; }
         public string Difficulty { get; set; }
         public string Status { get; set; }
-        public List<StudentCourse> StudentCourses { get; set; }
     }
 }

@@ -1,0 +1,53 @@
+@model App.ViewModels.AddCourseViewModel
+
+<h1> Adding a new course? </h1>
+
+<div class="card text-dark bg-warning mb-3" style="max-width: 18rem;">
+  <div class="card-header">Fields not filled</div>
+  <div class="card-body">
+    <p class="card-text">@Html.ValidationSummary()</p>
+  </div>
+</div>
+
+<form asp-controller="Courses" asp-action="Add" method="POST">
+    <div class="card">
+        <div class="card-header p-4">
+        <h4>Add a new course</h4>
+        </div>
+        <div class="card-body p-4">
+            <div class="mb-3">
+                <label class="form-label" asp-for="CourseNumber"></label>
+                <input class="form-control" asp-for="CourseNumber" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Title"></label>
+                <input class="form-control" asp-for="Title" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Description"></label>
+                <textarea asp-for="Description" class="form-control" cols="30" rows="3"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Length"></label>
+                <input class="form-control" asp-for="Length" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Difficulty"></label>
+                <select class="form-select form-select-lg mb-3" asp-for="Difficulty" aria-label="Select a difficulty">
+                    <option value="Beginner" asp-for="Difficulty">Beginner</option>
+                    <option value="Intermediate" asp-for="Difficulty">Intermediate</option>
+                    <option value="Advanced" asp-for="Difficulty">Advanced</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label" asp-for="Status"></label>
+                <select class="form-select form-select-lg mb-3" asp-for="Status" aria-label="Select the state of the course">
+                    <option value="Active" asp-for="Status">Active</option>
+                    <option value="Retired" asp-for="Status">Retired</option>
+                </select>
+            </div>
+            <input class="btn btn-primary"type="submit" value="Save">
+        </div>
+    </div>
+</form>
+

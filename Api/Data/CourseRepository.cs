@@ -17,7 +17,7 @@ namespace Api.Data
 
         public async Task AddAsync(Course course)
         {
-            await _context.AddAsync(course);
+            await _context.Courses.AddAsync(course);
         }
 
         public async Task<Course> GetCourseByCourseNumberAync(string courseNumber)
@@ -34,11 +34,6 @@ namespace Api.Data
         public async Task<IEnumerable<Course>> GetCoursesAsync()
         {
             return await _context.Courses.ToListAsync();
-        }
-
-        public async Task<bool> SaveAllChanges()
-        {
-            return await _context.SaveChangesAsync() > 0;
         }
 
         public void Update(Course course)

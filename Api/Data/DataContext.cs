@@ -9,11 +9,16 @@ namespace Api.Data
     {
         public DbSet<Course> Courses {get; set;}
         public DbSet<Student> Students { get; set; }
+
+        public DbSet<StudentCourse> StudentCourses { get; set; }
+
+
         public DataContext(DbContextOptions options) : base(options) {}
 
-        internal Task SingleOrDefaultAsync(Func<object, bool> p)
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            throw new NotImplementedException();
+            modelBuilder.Entity<StudentCourse>()
+                .HasKey(sc => new { sc.StudentId, sc.CourseId });
         }
     }
 }

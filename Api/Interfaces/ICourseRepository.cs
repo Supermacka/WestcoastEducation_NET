@@ -11,6 +11,5 @@ namespace Api.Interfaces
         Task<Course> GetCourseByCourseNumberAync(string courseNumber);
         Task<Course> GetCourseByIdAync(int id);
         void Update(Course course);
-        Task<bool> SaveAllChanges();
     }
 }

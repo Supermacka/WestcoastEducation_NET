@@ -53,7 +53,7 @@ namespace Api.Controllers
         {
             try
             {
-                var course = await _unitOfWork.CourseRepository.GetCourseByCourseNumberAync(courseNumber);
+                var course = await _unitOfWork.CourseRepository.GetCourseByCourseNumberAsync(courseNumber);
 
                 if (course == null) return NotFound();
 
@@ -69,7 +69,7 @@ namespace Api.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult> UpdateCourse(int id, Course courseModel)
         {
-            var course = await _unitOfWork.CourseRepository.GetCourseByIdAync(id);
+            var course = await _unitOfWork.CourseRepository.GetCourseByIdAsync(id);
             
             course.Title = courseModel.Title;
             course.Description = courseModel.Description;
@@ -86,7 +86,7 @@ namespace Api.Controllers
         [HttpPut("{id}/{status}")]
         public async Task<ActionResult> SetStatus(int id, string status)
         {
-            var course = await _unitOfWork.CourseRepository.GetCourseByIdAync(id);
+            var course = await _unitOfWork.CourseRepository.GetCourseByIdAsync(id);
             course.Status = status;
         
             _unitOfWork.CourseRepository.Update(course);

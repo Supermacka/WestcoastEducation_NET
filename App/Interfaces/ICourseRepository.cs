@@ -1,15 +1,16 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Api.Entities;
+using App.Entities;
 
-namespace Api.Interfaces
+namespace App.Interfaces
 {
     public interface ICourseRepository
     {
-        Task AddAsync(Course course);
+        void Add(Course course);
         Task<IEnumerable<Course>> GetCoursesAsync();
         Task<Course> GetCourseByCourseNumberAsync(string courseNumber);
         Task<Course> GetCourseByIdAsync(int id);
         void Update(Course course);
+        void Delete(Course course);
     }
 }

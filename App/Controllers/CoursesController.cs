@@ -1,9 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using App.Data;
 using App.Entities;
+using App.Interfaces;
+using App.Models;
 using App.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,17 +16,19 @@ namespace App.Controllers
 {
     public class CoursesController : Controller
     {
-        private readonly DataContext _context;
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICourseService _courseService;
 
-        public CoursesController(DataContext context)
+        public CoursesController(IUnitOfWork unitOfWork, ICourseService courseService)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
+            _courseService = courseService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var result = await _context.Courses.ToListAsync();
+            var result = await _courseService.GetCoursesAsync();
             return View("Index", result);
         }
 
@@ -47,17 +53,30 @@ namespace App.Controllers
                 Status = data.Status
             };
 
-            _context.Courses.Add(course);
-            var result = await _context.SaveChangesAsync();
-            return RedirectToAction("Index", course);
+            _unitOfWork.CourseRepository.Add(course);
+
+            if(await _unitOfWork.Complete()) return RedirectToAction("Index");
+
+            return View("Error", course);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(string courseNumber)
         {
-            var course = await _context.Courses.FindAsync(id);
+            using var client = new HttpClient();
+            var response = await client.GetAsync($"https://localhost:5001/api/courses/{courseNumber}");
 
-            var courseModel = new EditCourseViewModel
+            CourseModel course = null;
+            if(response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadAsStringAsync();
+                course = JsonSerializer.Deserialize<CourseModel>(data, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
+
+            var model = new EditCourseViewModel
             {
                 CourseNumber = course.CourseNumber,
                 Title = course.Title,
@@ -67,25 +86,54 @@ namespace App.Controllers
                 Status = course.Status
             };
 
-            return View("Edit", courseModel);
+            return View("Edit", model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Edit(EditCourseViewModel data)
+        public async Task<IActionResult> Edit(EditCourseViewModel model)
         {
-            var course = await _context.Courses.FindAsync(data.Id);
+            // Get course object
+            var client = new HttpClient();
+            var response = await client.GetAsync($"https://localhost:5001/api/courses/{model.CourseNumber}");
 
-            course.CourseNumber = data.CourseNumber;
-            course.Title = data.Title;
-            course.Description = data.Description;
-            course.Length = data.Length;
-            course.Difficulty = data.Difficulty;
-            course.Status = data.Status;
+            CourseModel courseModel = null;
+            if(response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadAsStringAsync();
+                courseModel = JsonSerializer.Deserialize<CourseModel>(data, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+            }
 
-            _context.Courses.Update(course);
-            var result = await _context.SaveChangesAsync();
-            return RedirectToAction("Index");
+            // Update current object with new valuees
+            courseModel.CourseNumber = model.CourseNumber;
+            courseModel.Title = model.Title;
+            courseModel.Description = model.Description;
+            courseModel.Length = model.Length;
+            courseModel.Difficulty = model.Difficulty;
+            courseModel.Status = model.Status;
+
+            response = await client.GetAsync($"https://localhost:5001/api/courses/{model.Id}");
+            if(response.IsSuccessStatusCode)
+            {
+                var data = await response.Content.ReadAsStringAsync();
+                JsonSerializer.Serialize(courseModel);
+                return View("Index");
+            }
+            
+            return View("Error");
         } 
+
+        // public async Task<IActionResult> Delete(int id)
+        // {
+        //     var course = await _courseRepo.GetCourseByIdAsync(id);
+        //     _courseRepo.Delete(course);
+
+        //     if (await _courseRepo.SaveAllAsync()) return RedirectToAction("Index");
+            
+        //     return View("Error");
+        // }
     }
     
 }

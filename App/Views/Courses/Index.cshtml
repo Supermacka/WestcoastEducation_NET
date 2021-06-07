@@ -1,4 +1,4 @@
-@model IEnumerable<App.Entities.Course>
+@model IEnumerable<App.Models.CourseModel>
 
 <section class="jumbotron text-center">
 <div class="container">
@@ -23,9 +23,7 @@
                     <p class="card-text">@course.Description</p>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="btn-group">
-                            @* <a type="button" class="btn btn-sm btn-outline-primary">Select</a> *@
-                            <a asp-action="Edit" asp-route-id="@course.Id" type="button" class="btn btn-sm btn-outline-secondary">Edit</a>
-                            <a type="button" class="btn btn-sm btn-outline-danger">Delete</a>
+                            <a asp-action="Edit" asp-route-courseNumber="@course.CourseNumber" type="button" class="btn btn-sm btn-outline-primary">Edit</a>
                         </div>
                         <small class="text-muted">#@course.CourseNumber</small>
                     </div>

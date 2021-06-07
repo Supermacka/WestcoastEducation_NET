@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Api.Entities;
-using Api.Interfaces;
+using App.Entities;
+using App.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
-namespace Api.Data
+namespace App.Data
 {
     public class CourseRepository : ICourseRepository
     {
@@ -15,17 +15,21 @@ namespace Api.Data
             _context = context;
         }
 
-        public async Task AddAsync(Course course)
+        public void Add(Course course)
         {
-            await _context.Courses.AddAsync(course);
+            _context.Courses.Add(course);
+        }
+
+        public void Delete(Course course)
+        {
+            _context.Courses.Remove(course);
         }
 
         public async Task<Course> GetCourseByCourseNumberAsync(string courseNumber)
         {
-            var course = await _context.Courses.SingleOrDefaultAsync(c => c.CourseNumber == courseNumber);
-            return course; 
+            return await _context.Courses.SingleOrDefaultAsync(c => c.CourseNumber == courseNumber);
         }
-        
+
         public async Task<Course> GetCourseByIdAsync(int id)
         {
             return await _context.Courses.FindAsync(id);

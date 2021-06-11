@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Api.DTOs;
 using Api.Entities;
 
 namespace Api.Interfaces
@@ -11,5 +12,6 @@ namespace Api.Interfaces
         Task<Course> GetCourseByCourseNumberAsync(string courseNumber);
         Task<Course> GetCourseByIdAsync(int id);
         void Update(Course course);
+        void Delete(Course courseDto);
     }
 }

@@ -15,6 +15,7 @@ namespace App.ViewModels
         public string Description { get; set; }
         
         [Required(ErrorMessage = "Length of course is missing!")]
+        [Range(1, 500, ErrorMessage = "The value for Length ")]
         public int Length { get; set; }
         
         [Required(ErrorMessage = "Difficulty of course is missing!")]

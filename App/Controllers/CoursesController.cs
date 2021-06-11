@@ -28,8 +28,13 @@ namespace App.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var result = await _courseService.GetCoursesAsync();
-            return View("Index", result);
+            //var result = await _courseService.GetCoursesAsync();
+            var result = await _courseService.GetSearchCoursesAsync();
+            var model = new SearchCourseViewModel
+            {
+                Courses = result
+            };
+            return View("Index", model);
         }
 
         [HttpGet]
@@ -43,7 +48,7 @@ namespace App.Controllers
         {
             if(!ModelState.IsValid) return View("Add", data);
 
-            var course = new Course
+            var course = new CourseModel
             {
                 CourseNumber = data.CourseNumber,
                 Title = data.Title,
@@ -53,28 +58,22 @@ namespace App.Controllers
                 Status = data.Status
             };
 
-            _unitOfWork.CourseRepository.Add(course);
-
-            if(await _unitOfWork.Complete()) return RedirectToAction("Index");
-
+            try
+            {
+                if(await _courseService.AddCourse(course)) return RedirectToAction("Index");
+            }
+            catch (System.Exception)
+            {
+                return View("Error", course);
+            }
+            
             return View("Error", course);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Edit(string courseNumber)
+        public async Task<IActionResult> Edit(int id)
         {
-            using var client = new HttpClient();
-            var response = await client.GetAsync($"https://localhost:5001/api/courses/{courseNumber}");
-
-            CourseModel course = null;
-            if(response.IsSuccessStatusCode)
-            {
-                var data = await response.Content.ReadAsStringAsync();
-                course = JsonSerializer.Deserialize<CourseModel>(data, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-            }
+            CourseModel course = await _courseService.GetCourseAsync(id);
 
             var model = new EditCourseViewModel
             {
@@ -92,48 +91,85 @@ namespace App.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(EditCourseViewModel model)
         {
-            // Get course object
-            var client = new HttpClient();
-            var response = await client.GetAsync($"https://localhost:5001/api/courses/{model.CourseNumber}");
+            //Get current course model
+            var currentCourseModel = await _courseService.GetCourseAsync(model.Id);
 
-            CourseModel courseModel = null;
-            if(response.IsSuccessStatusCode)
+            // Create new Course of input values
+            var courseModel = new CourseModel
             {
-                var data = await response.Content.ReadAsStringAsync();
-                courseModel = JsonSerializer.Deserialize<CourseModel>(data, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
+                CourseNumber = model.CourseNumber,
+                Title = model.Title,
+                Description = model.Description,
+                Length = model.Length,
+                Difficulty = model.Difficulty,
+                Status = model.Status
+            };
+
+            try
+            {
+                if(await _courseService.UpdateCourse(currentCourseModel.CourseNumber, courseModel)) return RedirectToAction("Index");
             }
-
-            // Update current object with new valuees
-            courseModel.CourseNumber = model.CourseNumber;
-            courseModel.Title = model.Title;
-            courseModel.Description = model.Description;
-            courseModel.Length = model.Length;
-            courseModel.Difficulty = model.Difficulty;
-            courseModel.Status = model.Status;
-
-            response = await client.GetAsync($"https://localhost:5001/api/courses/{model.Id}");
-            if(response.IsSuccessStatusCode)
+            catch (System.Exception)
             {
-                var data = await response.Content.ReadAsStringAsync();
-                JsonSerializer.Serialize(courseModel);
-                return View("Index");
+                return View("Error");
             }
             
             return View("Error");
         } 
 
-        // public async Task<IActionResult> Delete(int id)
-        // {
-        //     var course = await _courseRepo.GetCourseByIdAsync(id);
-        //     _courseRepo.Delete(course);
-
-        //     if (await _courseRepo.SaveAllAsync()) return RedirectToAction("Index");
+        [HttpGet]
+        public async Task<IActionResult> Search(string courseNumber)
+        {
+            if (string.IsNullOrWhiteSpace(courseNumber))
+            {
+                //var result = await _courseService.GetCoursesAsync();
+                var resultIndex = await _courseService.GetSearchCoursesAsync();
+                var model = new SearchCourseViewModel
+                {
+                    Courses = resultIndex
+                };
+                return View("Index", model);                
+            }
             
-        //     return View("Error");
-        // }
+            // Get course from API
+            try
+            {
+                var result = await _courseService.GetCourseByCourseNumberAsync(courseNumber);   
+
+                SearchCourseViewModel courseModel = new SearchCourseViewModel()
+                {
+                    CourseNumber = result.CourseNumber,
+                    Courses = new List<CourseModel>()
+                };
+
+                courseModel.Courses.Add(result);
+
+                // Return View with result model
+                return View("Index", courseModel);
+            }
+            catch (Exception)
+            {
+                return NoContent();
+            }
+            
+        }
+
+        [HttpDelete]
+         public async Task<IActionResult> Delete(int id)
+         {
+             var currentCourseModel = await _courseService.GetCourseAsync(id);
+
+            try
+            {
+                if(await _courseService.DeleteCourse(id)) return RedirectToAction("Index");
+            }
+            catch (System.Exception)
+            {
+                return View("Error");
+            }
+
+            return View("Error");
+         }
     }
     
 }

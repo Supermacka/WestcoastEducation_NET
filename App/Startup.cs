@@ -33,6 +33,7 @@ namespace App
                 options.UseSqlite(_config.GetConnectionString("DefaultConnection"));
             });
 
+            services.AddHttpClient<ICourseService, CourseService>();
             services.AddScoped<ICourseService, CourseService>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddControllersWithViews();

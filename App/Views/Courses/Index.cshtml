@@ -1,34 +1,51 @@
-@model IEnumerable<App.Models.CourseModel>
+@model App.ViewModels.SearchCourseViewModel
 
-<section class="jumbotron text-center">
+<section class="jumbotron text-center bg-info my-5">
 <div class="container">
-    <h1 class="jumbotron-heading">Our courses</h1>
-    <p class="lead text-muted">Ready to learn? Find your true passion in the list of endless lectures down below</p>
+    <h1 class="jumbotron-heading text-white">Edit courses</h1>
+    <p class="lead text-light">Edit the list of courses down below. You can also search by course number.</p>
 </div>
 </section>
 
 <a class="btn btn-primary mb-3" asp-action="Add">Add new course</a>
 
-<div class="album my-3 py-5 p-3 bg-light">
+<div class="album mt-2 mb-5 py-5 p-3 bg-light">
+
+
+    <form asp-controller="Courses" asp-action="Search" method="GET">
+        <div class="input-group">
+            <div class="input-group mb-4 px-4">
+            <input type="search" asp-for="CourseNumber" placeholder="Search for a [course number]" aria-describedby="button-addon5" class="form-control shadow-none">
+                <div class="input-group-append">
+                    <input id="button-addon5" type="submit" value="Search" class="btn btn-info" />
+                </div>
+            </div>
+        </div>
+    </form>
+
     <div class="container">
         <div class="row">
-            @foreach (var course in Model)
+            @foreach (var course in Model.Courses)
             {
             <div class="col-md-4">
                 <div class="card m-4 box-shadow">
                 <img class="card-img-top" src="https://images.unsplash.com/photo-1609921141835-710b7fa6e438?ixid=MnwxMjA3fDB8MHxzZWFyY2h8M3x8YXBwJTIwZGVzaWdufGVufDB8MHwwfHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=700&q=60" alt="A Red Ferrari">
                 <div class="card-body">
                     <h5 class="card-title">@course.Title</h5>
-                    <h6 class="card-subtitle mb-2 text-muted">@course.Length<span>v</span> ⋅ @course.Difficulty</h6>
+                    <h6 class="card-subtitle mb-2 text-muted">@course.Length<span>w</span> ⋅ @course.Difficulty</h6>
                     <p class="card-text">@course.Description</p>
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="btn-group">
-                            <a asp-action="Edit" asp-route-courseNumber="@course.CourseNumber" type="button" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a asp-action="Edit" asp-route-id="@course.Id" type="button" class="btn btn-sm btn-outline-primary">Edit</a>
+                            <a asp-action="Delete" asp-route-id="@course.Id" type="button" class="btn btn-sm btn-outline-danger">Delete</a>
                         </div>
                         <small class="text-muted">#@course.CourseNumber</small>
                     </div>
                 </div>
-                <div class="card-header">@course.Status</div>
+                @if (@course.Status == "Retired")
+                {
+                    <div class="card-header bg-dark text-white rounded-bottom">@course.Status</div>   
+                }
                 </div>
             </div>
             }

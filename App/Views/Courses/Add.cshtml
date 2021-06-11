@@ -28,8 +28,8 @@
                 <textarea asp-for="Description" class="form-control" cols="30" rows="3"></textarea>
             </div>
             <div class="mb-3">
-                <label class="form-label" asp-for="Length"></label>
-                <input class="form-control" asp-for="Length" />
+                <label class="form-label" asp-for="Length">Length(Weeks)</label>
+                <input class="form-control" asp-for="Length"  min="1"/>
             </div>
             <div class="mb-3">
                 <label class="form-label" asp-for="Difficulty"></label>

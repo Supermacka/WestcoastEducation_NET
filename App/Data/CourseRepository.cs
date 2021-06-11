@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using App.Entities;
 using App.Interfaces;
@@ -27,7 +28,8 @@ namespace App.Data
 
         public async Task<Course> GetCourseByCourseNumberAsync(string courseNumber)
         {
-            return await _context.Courses.SingleOrDefaultAsync(c => c.CourseNumber == courseNumber);
+            var banan = _context.Courses.FirstOrDefault(c => c.CourseNumber.Trim().ToLower() == courseNumber.Trim().ToLower());
+            return await _context.Courses.FirstOrDefaultAsync(c => c.CourseNumber.Trim().ToLower() == courseNumber.Trim().ToLower());
         }
 
         public async Task<Course> GetCourseByIdAsync(int id)

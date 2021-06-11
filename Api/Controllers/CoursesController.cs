@@ -3,10 +3,12 @@ using System.Threading.Tasks;
 using Api.Data;
 using Api.Entities;
 using Api.Interfaces;
-using Api.Models;
+using Api.DTOs;
 using App.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Api.Controllers
 {
@@ -23,10 +25,19 @@ namespace Api.Controllers
 
         // Det skall gå att skapa nya kurser som lagras i en databas(SQLite)
         [HttpPost()]
-        public async Task<ActionResult> AddCourse(Course course)
+        public async Task<ActionResult> AddCourse(CourseDto courseDto)
         {
             try
             {
+                var course = new Course
+                {
+                    CourseNumber = courseDto.CourseNumber,
+                    Title = courseDto.Title,
+                    Description = courseDto.Description,
+                    Length = courseDto.Length,
+                    Difficulty = courseDto.Difficulty,
+                    Status = courseDto.Status
+                };
                 await _unitOfWork.CourseRepository.AddAsync(course);
 
                 if(await _unitOfWork.Complete()) return StatusCode(201);
@@ -44,16 +55,35 @@ namespace Api.Controllers
         public async Task<ActionResult> GetCourses()
         {
             var courses  = await _unitOfWork.CourseRepository.GetCoursesAsync();
+            var coursesDto = courses.Select(c => new CourseDto
+            {
+                CourseNumber = c.CourseNumber,
+                Title = c.Title,
+                Description = c.Description,
+                Length = c.Length,
+                Difficulty = c.Difficulty,
+                Status = c.Status
+            });
+
             return Ok(courses);
         }
 
         // Det skall gå att söka efter en kurs på kursens kursnummer
-        [HttpGet("{courseNumber}")]
-        public async Task<ActionResult> GetCourse(string courseNumber)
+        [HttpGet("{id}")]
+        public async Task<ActionResult> GetCourseById(int id)
         {
             try
             {
-                var course = await _unitOfWork.CourseRepository.GetCourseByCourseNumberAsync(courseNumber);
+                var course = await _unitOfWork.CourseRepository.GetCourseByIdAsync(id);
+                var courseDto = new CourseDto
+                {
+                    CourseNumber = course.CourseNumber,
+                    Title = course.Title,
+                    Description = course.Description,
+                    Length = course.Length,
+                    Difficulty = course.Difficulty,
+                    Status = course.Status
+                };
 
                 if (course == null) return NotFound();
 
@@ -65,40 +95,58 @@ namespace Api.Controllers
             }
         }
 
+        [HttpGet("find/{courseNumber}")]
+        public async Task<ActionResult> GetCourseByCourseNumber(string courseNumber)
+        {
+            try
+            {
+                var course = await _unitOfWork.CourseRepository.GetCourseByCourseNumberAsync(courseNumber);
+                var courseDto = new CourseDto
+                {
+                    CourseNumber = course.CourseNumber,
+                    Title = course.Title,
+                    Description = course.Description,
+                    Length = course.Length,
+                    Difficulty = course.Difficulty,
+                    Status = course.Status
+                };
+
+                if (course == null) return NotFound();
+
+                return Ok(course);
+            }
+            catch (System.Exception)
+            {
+                throw;
+            }
+        }
+
         // Det skall gå att ändra kurser i databasen
-        [HttpPut("{id}")]
-        public async Task<ActionResult> UpdateCourse(int id, Course courseModel)
+        [HttpPut("{courseNumber}")]
+        public async Task<ActionResult> UpdateCourse(string courseNumber, CourseDto courseDto)
         {
-            var course = await _unitOfWork.CourseRepository.GetCourseByIdAsync(id);
+            var course = await _unitOfWork.CourseRepository.GetCourseByCourseNumberAsync(courseNumber);
             
-            course.Title = courseModel.Title;
-            course.Description = courseModel.Description;
-            course.Length = courseModel.Length;
-            course.Difficulty = courseModel.Difficulty;
-            course.Status = courseModel.Status;
+            course.CourseNumber = courseDto.CourseNumber;
+            course.Title = courseDto.Title;
+            course.Description = courseDto.Description;
+            course.Length = courseDto.Length;
+            course.Difficulty = courseDto.Difficulty;
+            course.Status = courseDto.Status;
 
             _unitOfWork.CourseRepository.Update(course);
             var result = await _unitOfWork.Complete();
             return NoContent();
         }
 
-        // Det skall gå att markera en kurs som pensionerad
-        [HttpPut("{id}/{status}")]
-        public async Task<ActionResult> SetStatus(int id, string status)
+        [HttpDelete("{courseNumber}")]
+        public async Task<ActionResult> DeleteCourse(string courseNumber)
         {
-            var course = await _unitOfWork.CourseRepository.GetCourseByIdAsync(id);
-            course.Status = status;
-        
-            _unitOfWork.CourseRepository.Update(course);
+            var course = await _unitOfWork.CourseRepository.GetCourseByCourseNumberAsync(courseNumber);
+            
+            _unitOfWork.CourseRepository.Delete(course);
             var result = await _unitOfWork.Complete();
             return NoContent();
         }
-
-        // När en deltagare anmäler sig/köper en kurs måste vi kunna spåra vilken/vilka kurser som deltagaren har anmält sig till eller köpt
-        // Ett eller flera repo???
-        //public async Task<ActionResult> SignUp(int id)
-        //{
-        //    var student = await _repo.GetStudent
-        //}
     }
 }

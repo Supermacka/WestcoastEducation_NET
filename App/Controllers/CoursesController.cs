@@ -154,14 +154,14 @@ namespace App.Controllers
             
         }
 
-        [HttpDelete]
+        [HttpGet]
          public async Task<IActionResult> Delete(int id)
          {
              var currentCourseModel = await _courseService.GetCourseAsync(id);
 
             try
             {
-                if(await _courseService.DeleteCourse(id)) return RedirectToAction("Index");
+                if(await _courseService.DeleteCourse(currentCourseModel.CourseNumber)) return RedirectToAction("Index");
             }
             catch (System.Exception)
             {

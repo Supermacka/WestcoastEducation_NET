@@ -52,11 +52,11 @@ namespace App.Services
             }
         }
 
-        public async Task<bool> DeleteCourse(int id)
+        public async Task<bool> DeleteCourse(string courseNumber)
         {
             try
             {
-                var response = await _http.GetAsync($"{_baseUrl}/delete/{id}");
+                var response = await _http.GetAsync($"https://localhost:5001/api/courses/delete/{courseNumber}");
 
                 if (response.IsSuccessStatusCode)
                 {

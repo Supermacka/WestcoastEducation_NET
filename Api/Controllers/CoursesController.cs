@@ -139,7 +139,7 @@ namespace Api.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{courseNumber}")]
+        [HttpDelete("delete/{courseNumber}")]
         public async Task<ActionResult> DeleteCourse(string courseNumber)
         {
             var course = await _unitOfWork.CourseRepository.GetCourseByCourseNumberAsync(courseNumber);

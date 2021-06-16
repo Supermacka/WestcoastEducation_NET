@@ -13,7 +13,7 @@ using System.Linq;
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/courses")]
+    [Route("api/courses/")]
     public class CoursesController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;

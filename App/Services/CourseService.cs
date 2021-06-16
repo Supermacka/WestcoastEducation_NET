@@ -56,7 +56,7 @@ namespace App.Services
         {
             try
             {
-                var response = await _http.GetAsync($"https://localhost:5001/api/courses/delete/{courseNumber}");
+                var response = await _http.DeleteAsync($"{_baseUrl}/delete/{courseNumber}");
 
                 if (response.IsSuccessStatusCode)
                 {
